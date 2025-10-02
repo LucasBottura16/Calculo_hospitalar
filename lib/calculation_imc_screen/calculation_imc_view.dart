@@ -75,6 +75,106 @@ class _CalculationImcViewState extends State<CalculationImcView> {
     });
   }
 
+  bool _validateRequiredFields() {
+    // Verificar campos básicos obrigatórios
+    if (_idadeController.text.isEmpty) {
+      _showValidationError('Por favor, preencha a idade do paciente.');
+      return false;
+    }
+    if (_pesoController.text.isEmpty) {
+      _showValidationError('Por favor, preencha o peso do paciente.');
+      return false;
+    }
+    if (_alturaController.text.isEmpty) {
+      _showValidationError('Por favor, preencha a altura do paciente.');
+      return false;
+    }
+    if (_hdPatientController.text.isEmpty) {
+      _showValidationError(
+        'Por favor, preencha o campo HD (História da Doença).',
+      );
+      return false;
+    }
+    if (_apPatientController.text.isEmpty) {
+      _showValidationError(
+        'Por favor, preencha o campo AP (Antecedentes Pessoais).',
+      );
+      return false;
+    }
+    if (_situationPatientController.text.isEmpty) {
+      _showValidationError('Por favor, preencha a situação do paciente.');
+      return false;
+    }
+    if (_selectedEvolution == null) {
+      _showValidationError('Por favor, selecione uma evolução.');
+      return false;
+    }
+    if (_nrTriagem == null) {
+      _showValidationError('Por favor, preencha o score da triagem NRS.');
+      return false;
+    }
+    if (_selectedDiets == null) {
+      _showValidationError('Por favor, selecione uma dieta.');
+      return false;
+    }
+    if (_resultadoIMC == null) {
+      _showValidationError(
+        'Por favor, calcule o IMC primeiro clicando em "Calcular".',
+      );
+      return false;
+    }
+    if (_necessidadeCaloricaMinController.text.isEmpty) {
+      _showValidationError(
+        'Por favor, preencha a necessidade calórica mínima.',
+      );
+      return false;
+    }
+    if (_necessidadeCaloricaMaxController.text.isEmpty) {
+      _showValidationError(
+        'Por favor, preencha a necessidade calórica máxima.',
+      );
+      return false;
+    }
+    if (_necessidadeProteicaMinController.text.isEmpty) {
+      _showValidationError(
+        'Por favor, preencha a necessidade proteica mínima.',
+      );
+      return false;
+    }
+    if (_necessidadeProteicaMaxController.text.isEmpty) {
+      _showValidationError(
+        'Por favor, preencha a necessidade proteica máxima.',
+      );
+      return false;
+    }
+    if (isButtonSelectedRevisita) {
+      if (_quantidadeSuplementsConsumidosController.text.isEmpty) {
+        _showValidationError(
+          'Por favor, preencha a quantidade de suplementos consumidos.',
+        );
+        return false;
+      }
+    }
+    return true;
+  }
+
+  void _showValidationError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+        duration: const Duration(seconds: 3),
+      ),
+    );
+  }
+
+  bool _areBasicFieldsFilled() {
+    return _idadeController.text.isNotEmpty &&
+        _pesoController.text.isNotEmpty &&
+        _alturaController.text.isNotEmpty &&
+        _resultadoIMC != null;
+  }
+
   void _calcular() {
     FocusScope.of(context).unfocus();
 
@@ -108,6 +208,11 @@ class _CalculationImcViewState extends State<CalculationImcView> {
 
   @override
   void dispose() {
+    // Remover listeners antes de fazer dispose
+    _idadeController.removeListener(_updateButtonState);
+    _pesoController.removeListener(_updateButtonState);
+    _alturaController.removeListener(_updateButtonState);
+
     _pesoController.dispose();
     _alturaController.dispose();
     _idadeController.dispose();
@@ -118,9 +223,21 @@ class _CalculationImcViewState extends State<CalculationImcView> {
     super.dispose();
   }
 
+  void _updateButtonState() {
+    setState(() {
+      // Força a atualização da interface para refletir mudanças nos campos
+    });
+  }
+
   @override
   void initState() {
     super.initState();
+
+    // Adicionar listeners aos campos obrigatórios para atualizar o botão
+    _idadeController.addListener(_updateButtonState);
+    _pesoController.addListener(_updateButtonState);
+    _alturaController.addListener(_updateButtonState);
+
     setState(() {
       _necessidadeCaloricaMinController.text = "25".toString();
       _necessidadeCaloricaMaxController.text = "30".toString();
@@ -717,6 +834,11 @@ class _CalculationImcViewState extends State<CalculationImcView> {
           height: 60,
           child: CustomButton(
             onPressed: () {
+              // Validar se todos os campos obrigatórios estão preenchidos
+              if (!_validateRequiredFields()) {
+                return;
+              }
+
               // Criar objeto com todos os dados coletados
               final assessmentData = NutritionalAssessmentData(
                 idade: _idadeController.text,
@@ -758,8 +880,10 @@ class _CalculationImcViewState extends State<CalculationImcView> {
               );
             },
             title: "Gerar Avaliação Nutricional",
-            titleColor: Colors.white,
-            buttonColor: MyColors.myPrimary,
+            titleColor: _areBasicFieldsFilled() ? Colors.white : Colors.grey,
+            buttonColor: _areBasicFieldsFilled()
+                ? MyColors.myPrimary
+                : Colors.grey.shade400,
           ),
         ),
       ],
