@@ -1,5 +1,6 @@
 import 'package:calculo_imc/models/nutritional_assessment_data.dart';
 import 'package:calculo_imc/utils/colors.dart';
+import 'package:calculo_imc/utils/customs_components/app_footer.dart';
 import 'package:calculo_imc/utils/customs_components/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -161,37 +162,45 @@ Nível de Assistência Nutricional: ${score == '0'
         backgroundColor: MyColors.myPrimary,
         foregroundColor: Colors.white,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(sampleReport),
-            const SizedBox(height: 16.0),
-            SizedBox(
-              width: double.infinity,
-              height: 60,
-              child: CustomButton(
-                onPressed: () async {
-                  await Clipboard.setData(ClipboardData(text: sampleReport));
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                          'Relatório copiado para a área de transferência!',
-                        ),
-                        backgroundColor: MyColors.myPrimary,
-                      ),
-                    );
-                  }
-                },
-                title: "Copiar Relatório",
-                titleColor: Colors.white,
-                buttonColor: MyColors.myPrimary,
+      body: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(sampleReport),
+                  const SizedBox(height: 16.0),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 60,
+                    child: CustomButton(
+                      onPressed: () async {
+                        await Clipboard.setData(ClipboardData(text: sampleReport));
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'Relatório copiado para a área de transferência!',
+                              ),
+                              backgroundColor: Colors.green,
+                            ),
+                          );
+                        }
+                      },
+                      title: "Copiar Relatório",
+                      titleColor: Colors.white,
+                      buttonColor: MyColors.myPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+          const AppFooter(),
+        ],
       ),
     );
   }

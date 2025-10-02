@@ -2,6 +2,7 @@ import 'package:calculo_imc/calculation_imc_screen/calculation_imc_service.dart'
 import 'package:calculo_imc/models/nutritional_assessment_data.dart';
 import 'package:calculo_imc/route_generator.dart';
 import 'package:calculo_imc/utils/colors.dart';
+import 'package:calculo_imc/utils/customs_components/app_footer.dart';
 import 'package:calculo_imc/utils/customs_components/custom_button.dart';
 import 'package:calculo_imc/utils/customs_components/custom_dropdown.dart';
 import 'package:calculo_imc/utils/customs_components/custom_input_field.dart';
@@ -76,7 +77,13 @@ class _CalculationImcViewState extends State<CalculationImcView> {
   }
 
   bool _validateRequiredFields() {
-    // Verificar campos básicos obrigatórios
+    if (isButtonSelectedRevisita == false && isButtonSelectedTraigem == false) {
+      _showValidationError(
+        'Por favor, selecione o tipo de avaliação: Triagem ou Revisita.',
+      );
+      return false;
+    }
+
     if (_idadeController.text.isEmpty) {
       _showValidationError('Por favor, preencha a idade do paciente.');
       return false;
@@ -229,6 +236,110 @@ class _CalculationImcViewState extends State<CalculationImcView> {
     });
   }
 
+  void _mostrarDialogoLimparFormulario() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Row(
+            children: [
+              Icon(Icons.warning, color: Colors.orange, size: 24),
+              const SizedBox(width: 8),
+              const Text('Confirmar Limpeza'),
+            ],
+          ),
+          content: const Text(
+            'Tem certeza que deseja limpar todo o formulário?\n\nTodos os dados preenchidos serão perdidos.',
+            style: TextStyle(fontSize: 16),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Fechar diálogo
+              },
+              child: Text(
+                'Cancelar',
+                style: TextStyle(color: Colors.grey[600], fontSize: 16),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Fechar diálogo
+                _limparFormulario(); // Executar limpeza
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Limpar', style: TextStyle(fontSize: 16)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _limparFormulario() {
+    setState(() {
+      // Limpar todos os controllers
+      _pesoController.clear();
+      _alturaController.clear();
+      _idadeController.clear();
+      _imcIdealController.clear();
+      _quantidadeSuplementsController.clear();
+      _quantidadeSuplementsConsumidosController.clear();
+      _quantidadeDietaConsumidosController.clear();
+      _hdPatientController.clear();
+      _apPatientController.clear();
+      _situationPatientController.text =
+          '* Paciente encontra-se em leito, calma e contactuante.\n'
+          '* Nega intolerância/alergia alimentar.\n'
+          '* Nega restrições/preferências alimentares.\n'
+          '* Nega perda de peso nos últimos três meses.\n'
+          '* Nega episódios de náuseas, emêse, alteração do apetite.\n'
+          '* Habito intestinal normal, com evacuação presente ontem.';
+
+      // Resetar valores padrão dos controllers de necessidades nutricionais
+      _necessidadeCaloricaMinController.text = "25";
+      _necessidadeCaloricaMaxController.text = "30";
+      _necessidadeProteicaMinController.text = "1.2";
+      _necessidadeProteicaMaxController.text = "1.5";
+
+      // Limpar variáveis de resultado
+      _resultadoIMC = null;
+      _classificacaoIMC = null;
+      _faixaDePesoIdeal = null;
+
+      // Limpar seleções de dropdowns
+      _selectedEvolution = null;
+      _nrTriagem = null;
+      _selectedSuplements = null;
+      _selectedDiets = null;
+      _selectedDietsComplements2 = null;
+      _selectedDietsComplements3 = null;
+      _selectedDietsComplements4 = null;
+
+      // Limpar cálculos
+      _calculoCaloricaMin = null;
+      _calculoCaloricaMax = null;
+      _calculoProteicaMin = null;
+      _calculoProteicaMax = null;
+
+      // Resetar botões de seleção
+      isButtonSelectedTraigem = false;
+      isButtonSelectedRevisita = false;
+    });
+
+    // Mostrar confirmação
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Formulário limpo com sucesso!'),
+        backgroundColor: Colors.green,
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -274,56 +385,63 @@ class _CalculationImcViewState extends State<CalculationImcView> {
         foregroundColor: Colors.white,
         actions: [
           IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.new_label),
+            onPressed: _mostrarDialogoLimparFormulario,
+            icon: const Icon(Icons.refresh),
             iconSize: 30,
+            tooltip: 'Limpar Formulário',
           ),
-          const SizedBox(width: 10),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 1200),
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                bool isWideScreen = constraints.maxWidth > 800;
+      body: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 1200),
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      bool isWideScreen = constraints.maxWidth > 800;
 
-                if (isWideScreen) {
-                  return Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        flex: 1,
-                        child: Padding(
-                          padding: const EdgeInsets.only(right: 16.0),
-                          child: _buildFormColumn(),
-                        ),
-                      ),
-                      Expanded(
-                        flex: 1,
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 16.0),
-                          child: _buildResultColumn(),
-                        ),
-                      ),
-                    ],
-                  );
-                } else {
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      _buildFormColumn(),
-                      const SizedBox(height: 16),
-                      _buildResultColumn(),
-                    ],
-                  );
-                }
-              },
+                      if (isWideScreen) {
+                        return Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              flex: 1,
+                              child: Padding(
+                                padding: const EdgeInsets.only(right: 16.0),
+                                child: _buildFormColumn(),
+                              ),
+                            ),
+                            Expanded(
+                              flex: 1,
+                              child: Padding(
+                                padding: const EdgeInsets.only(left: 16.0),
+                                child: _buildResultColumn(),
+                              ),
+                            ),
+                          ],
+                        );
+                      } else {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            _buildFormColumn(),
+                            const SizedBox(height: 16),
+                            _buildResultColumn(),
+                          ],
+                        );
+                      }
+                    },
+                  ),
+                ),
+              ),
             ),
           ),
-        ),
+          const AppFooter(),
+        ],
       ),
     );
   }
@@ -487,8 +605,8 @@ class _CalculationImcViewState extends State<CalculationImcView> {
                   const SizedBox(height: 16),
                   CustomInputField(
                     controller: _hdPatientController,
-                    labelText: 'HP do paciente',
-                    hintText: 'Ex: Colocar o HP aqui',
+                    labelText: 'HD do paciente',
+                    hintText: 'Ex: Colocar o HD aqui',
                   ),
                   const SizedBox(height: 16),
                   CustomInputField(
@@ -686,13 +804,27 @@ class _CalculationImcViewState extends State<CalculationImcView> {
                           color: Colors.blue.shade700,
                         ),
                       ),
-                      Text(
-                        _resultadoIMC!,
-                        style: Theme.of(context).textTheme.displayLarge
-                            ?.copyWith(
-                              color: Colors.blue.shade800,
-                              fontWeight: FontWeight.bold,
-                            ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            _resultadoIMC!,
+                            style: Theme.of(context).textTheme.displayLarge
+                                ?.copyWith(
+                                  color: Colors.blue.shade800,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'kg/m²',
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(
+                                  color: Colors.blue.shade700,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -701,14 +833,48 @@ class _CalculationImcViewState extends State<CalculationImcView> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.green.shade50,
+                    color:
+                        _classificacaoIMC == 'Abaixo do peso (OMS, 1995)' ||
+                            _classificacaoIMC == 'Abaixo do peso (OPAS, 2002)'
+                        ? Colors.orange.shade50
+                        : _classificacaoIMC == 'Peso normal (OMS, 1995)' ||
+                              _classificacaoIMC == 'Peso eutrófia (OPAS, 2002)'
+                        ? Colors.green.shade50
+                        : _classificacaoIMC == 'Sobrepeso (OMS, 1995)' ||
+                              _classificacaoIMC == 'Sobrepeso (OPAS, 2002)'
+                        ? Colors.orange.shade50
+                        : Colors.red.shade50,
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.green.shade200),
+                    border: Border.all(
+                      color:
+                          _classificacaoIMC == 'Abaixo do peso (OMS, 1995)' ||
+                              _classificacaoIMC == 'Abaixo do peso (OPAS, 2002)'
+                          ? Colors.orange.shade200
+                          : _classificacaoIMC == 'Peso normal (OMS, 1995)' ||
+                                _classificacaoIMC ==
+                                    'Peso eutrófia (OPAS, 2002)'
+                          ? Colors.green.shade200
+                          : _classificacaoIMC == 'Sobrepeso (OMS, 1995)' ||
+                                _classificacaoIMC == 'Sobrepeso (OPAS, 2002)'
+                          ? Colors.orange.shade200
+                          : Colors.red.shade200,
+                    ),
                   ),
                   child: Text(
                     _classificacaoIMC!,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: Colors.green.shade700,
+                      color:
+                          _classificacaoIMC == 'Abaixo do peso (OMS, 1995)' ||
+                              _classificacaoIMC == 'Abaixo do peso (OPAS, 2002)'
+                          ? Colors.orange.shade700
+                          : _classificacaoIMC == 'Peso normal (OMS, 1995)' ||
+                                _classificacaoIMC ==
+                                    'Peso eutrófia (OPAS, 2002)'
+                          ? Colors.green.shade700
+                          : _classificacaoIMC == 'Sobrepeso (OMS, 1995)' ||
+                                _classificacaoIMC == 'Sobrepeso (OPAS, 2002)'
+                          ? Colors.orange.shade700
+                          : Colors.red.shade700,
                       fontWeight: FontWeight.w600,
                     ),
                     textAlign: TextAlign.center,
@@ -742,8 +908,9 @@ class _CalculationImcViewState extends State<CalculationImcView> {
                 ),
                 CustomInputField(
                   controller: _imcIdealController,
-                  labelText: 'IMC ideal (m)',
+                  labelText: 'IMC ideal (kg/m²)',
                   hintText: 'Ex: imc ideal',
+                  suffix: 'kg/m²',
                   keyboardType: const TextInputType.numberWithOptions(
                     decimal: true,
                   ),
@@ -834,12 +1001,10 @@ class _CalculationImcViewState extends State<CalculationImcView> {
           height: 60,
           child: CustomButton(
             onPressed: () {
-              // Validar se todos os campos obrigatórios estão preenchidos
               if (!_validateRequiredFields()) {
                 return;
               }
 
-              // Criar objeto com todos os dados coletados
               final assessmentData = NutritionalAssessmentData(
                 idade: _idadeController.text,
                 peso: _pesoController.text,
