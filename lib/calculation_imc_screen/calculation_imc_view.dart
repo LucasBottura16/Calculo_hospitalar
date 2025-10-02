@@ -1,11 +1,11 @@
 import 'package:calculo_imc/calculation_imc_screen/calculation_imc_service.dart';
-import 'package:calculo_imc/models/nutritional_assessment_data.dart';
+import 'package:calculo_imc/nutritional_assessment_screen/models/nutritional_assessment_data.dart';
 import 'package:calculo_imc/route_generator.dart';
 import 'package:calculo_imc/utils/colors.dart';
-import 'package:calculo_imc/utils/customs_components/app_footer.dart';
-import 'package:calculo_imc/utils/customs_components/custom_button.dart';
-import 'package:calculo_imc/utils/customs_components/custom_dropdown.dart';
-import 'package:calculo_imc/utils/customs_components/custom_input_field.dart';
+import 'package:calculo_imc/utils/components/app_footer.dart';
+import 'package:calculo_imc/utils/components/custom_button.dart';
+import 'package:calculo_imc/utils/components/custom_dropdown.dart';
+import 'package:calculo_imc/utils/components/custom_input_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
