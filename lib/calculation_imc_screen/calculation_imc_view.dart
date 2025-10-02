@@ -58,110 +58,58 @@ class _CalculationImcViewState extends State<CalculationImcView> {
   void _calcularCalorias() {
     final peso =
         double.tryParse(_pesoController.text.replaceAll(',', '.')) ?? 0;
+    final necessidadeCaloricaMin =
+        double.tryParse(_necessidadeCaloricaMinController.text) ?? 0;
+    final necessidadeCaloricaMax =
+        double.tryParse(_necessidadeCaloricaMaxController.text) ?? 0;
+    final necessidadeProteicaMin =
+        double.tryParse(_necessidadeProteicaMinController.text) ?? 0;
+    final necessidadeProteicaMax =
+        double.tryParse(_necessidadeProteicaMaxController.text) ?? 0;
 
-    double calculoCaloricaMin =
-        double.tryParse(_necessidadeCaloricaMinController.text)! * peso;
-    double calculoCaloricaMax =
-        double.tryParse(_necessidadeCaloricaMaxController.text)! * peso;
-    double calculoProteicaMin =
-        double.tryParse(_necessidadeProteicaMinController.text)! * peso;
-    double calculoProteicaMax =
-        double.tryParse(_necessidadeProteicaMaxController.text)! * peso;
+    final results = CalculationImcService.calculateNutritionalNeeds(
+      peso: peso,
+      necessidadeCaloricaMin: necessidadeCaloricaMin,
+      necessidadeCaloricaMax: necessidadeCaloricaMax,
+      necessidadeProteicaMin: necessidadeProteicaMin,
+      necessidadeProteicaMax: necessidadeProteicaMax,
+    );
 
     setState(() {
-      _calculoCaloricaMin = calculoCaloricaMin.toString();
-      _calculoCaloricaMax = calculoCaloricaMax.toString();
-      _calculoProteicaMin = calculoProteicaMin.toString();
-      _calculoProteicaMax = calculoProteicaMax.toString();
+      _calculoCaloricaMin = results['calculoCaloricaMin'];
+      _calculoCaloricaMax = results['calculoCaloricaMax'];
+      _calculoProteicaMin = results['calculoProteicaMin'];
+      _calculoProteicaMax = results['calculoProteicaMax'];
     });
   }
 
   bool _validateRequiredFields() {
-    if (isButtonSelectedRevisita == false && isButtonSelectedTraigem == false) {
-      _showValidationError(
-        'Por favor, selecione o tipo de avaliação: Triagem ou Revisita.',
-      );
+    final validationResult = CalculationImcService.validateRequiredFields(
+      isButtonSelectedRevisita: isButtonSelectedRevisita,
+      isButtonSelectedTraigem: isButtonSelectedTraigem,
+      idade: _idadeController.text,
+      peso: _pesoController.text,
+      altura: _alturaController.text,
+      hdPatient: _hdPatientController.text,
+      apPatient: _apPatientController.text,
+      situationPatient: _situationPatientController.text,
+      selectedEvolution: _selectedEvolution,
+      nrTriagem: _nrTriagem,
+      selectedDiets: _selectedDiets,
+      resultadoIMC: _resultadoIMC,
+      necessidadeCaloricaMin: _necessidadeCaloricaMinController.text,
+      necessidadeCaloricaMax: _necessidadeCaloricaMaxController.text,
+      necessidadeProteicaMin: _necessidadeProteicaMinController.text,
+      necessidadeProteicaMax: _necessidadeProteicaMaxController.text,
+      quantidadeSuplementsConsumidos:
+          _quantidadeSuplementsConsumidosController.text,
+    );
+
+    if (!validationResult.isValid) {
+      _showValidationError(validationResult.errorMessage!);
       return false;
     }
 
-    if (_idadeController.text.isEmpty) {
-      _showValidationError('Por favor, preencha a idade do paciente.');
-      return false;
-    }
-    if (_pesoController.text.isEmpty) {
-      _showValidationError('Por favor, preencha o peso do paciente.');
-      return false;
-    }
-    if (_alturaController.text.isEmpty) {
-      _showValidationError('Por favor, preencha a altura do paciente.');
-      return false;
-    }
-    if (_hdPatientController.text.isEmpty) {
-      _showValidationError(
-        'Por favor, preencha o campo HD (História da Doença).',
-      );
-      return false;
-    }
-    if (_apPatientController.text.isEmpty) {
-      _showValidationError(
-        'Por favor, preencha o campo AP (Antecedentes Pessoais).',
-      );
-      return false;
-    }
-    if (_situationPatientController.text.isEmpty) {
-      _showValidationError('Por favor, preencha a situação do paciente.');
-      return false;
-    }
-    if (_selectedEvolution == null) {
-      _showValidationError('Por favor, selecione uma evolução.');
-      return false;
-    }
-    if (_nrTriagem == null) {
-      _showValidationError('Por favor, preencha o score da triagem NRS.');
-      return false;
-    }
-    if (_selectedDiets == null) {
-      _showValidationError('Por favor, selecione uma dieta.');
-      return false;
-    }
-    if (_resultadoIMC == null) {
-      _showValidationError(
-        'Por favor, calcule o IMC primeiro clicando em "Calcular".',
-      );
-      return false;
-    }
-    if (_necessidadeCaloricaMinController.text.isEmpty) {
-      _showValidationError(
-        'Por favor, preencha a necessidade calórica mínima.',
-      );
-      return false;
-    }
-    if (_necessidadeCaloricaMaxController.text.isEmpty) {
-      _showValidationError(
-        'Por favor, preencha a necessidade calórica máxima.',
-      );
-      return false;
-    }
-    if (_necessidadeProteicaMinController.text.isEmpty) {
-      _showValidationError(
-        'Por favor, preencha a necessidade proteica mínima.',
-      );
-      return false;
-    }
-    if (_necessidadeProteicaMaxController.text.isEmpty) {
-      _showValidationError(
-        'Por favor, preencha a necessidade proteica máxima.',
-      );
-      return false;
-    }
-    if (isButtonSelectedRevisita) {
-      if (_quantidadeSuplementsConsumidosController.text.isEmpty) {
-        _showValidationError(
-          'Por favor, preencha a quantidade de suplementos consumidos.',
-        );
-        return false;
-      }
-    }
     return true;
   }
 
@@ -176,10 +124,12 @@ class _CalculationImcViewState extends State<CalculationImcView> {
   }
 
   bool _areBasicFieldsFilled() {
-    return _idadeController.text.isNotEmpty &&
-        _pesoController.text.isNotEmpty &&
-        _alturaController.text.isNotEmpty &&
-        _resultadoIMC != null;
+    return CalculationImcService.areBasicFieldsFilled(
+      idade: _idadeController.text,
+      peso: _pesoController.text,
+      altura: _alturaController.text,
+      resultadoIMC: _resultadoIMC,
+    );
   }
 
   void _calcular() {
@@ -280,6 +230,9 @@ class _CalculationImcViewState extends State<CalculationImcView> {
   }
 
   void _limparFormulario() {
+    // Obter dados de limpeza do service
+    final formClearData = CalculationImcService.prepareFormClearData();
+
     setState(() {
       // Limpar todos os controllers
       _pesoController.clear();
@@ -291,19 +244,17 @@ class _CalculationImcViewState extends State<CalculationImcView> {
       _quantidadeDietaConsumidosController.clear();
       _hdPatientController.clear();
       _apPatientController.clear();
-      _situationPatientController.text =
-          '* Paciente encontra-se em leito, calma e contactuante.\n'
-          '* Nega intolerância/alergia alimentar.\n'
-          '* Nega restrições/preferências alimentares.\n'
-          '* Nega perda de peso nos últimos três meses.\n'
-          '* Nega episódios de náuseas, emêse, alteração do apetite.\n'
-          '* Habito intestinal normal, com evacuação presente ontem.';
 
-      // Resetar valores padrão dos controllers de necessidades nutricionais
-      _necessidadeCaloricaMinController.text = "25";
-      _necessidadeCaloricaMaxController.text = "30";
-      _necessidadeProteicaMinController.text = "1.2";
-      _necessidadeProteicaMaxController.text = "1.5";
+      // Restaurar valores padrão usando o service
+      _situationPatientController.text = formClearData.situationPatientText;
+      _necessidadeCaloricaMinController.text =
+          formClearData.necessidadeCaloricaMin;
+      _necessidadeCaloricaMaxController.text =
+          formClearData.necessidadeCaloricaMax;
+      _necessidadeProteicaMinController.text =
+          formClearData.necessidadeProteicaMin;
+      _necessidadeProteicaMaxController.text =
+          formClearData.necessidadeProteicaMax;
 
       // Limpar variáveis de resultado
       _resultadoIMC = null;
@@ -349,30 +300,32 @@ class _CalculationImcViewState extends State<CalculationImcView> {
     _pesoController.addListener(_updateButtonState);
     _alturaController.addListener(_updateButtonState);
 
+    // Inicializar com valores padrão do service
+    final defaultValues = CalculationImcService.getDefaultValues();
+
     setState(() {
-      _necessidadeCaloricaMinController.text = "25".toString();
-      _necessidadeCaloricaMaxController.text = "30".toString();
-      _necessidadeProteicaMinController.text = "1.2".toString();
-      _necessidadeProteicaMaxController.text = "1.5".toString();
-      _situationPatientController.text =
-          '* Paciente encontra-se em leito, calma e contactuante.\n'
-          '* Nega intolerância/alergia alimentar.\n'
-          '* Nega restrições/preferências alimentares.\n'
-          '* Nega perda de peso nos últimos três meses.\n'
-          '* Nega episódios de náuseas, emêse, alteração do apetite.\n'
-          '* Habito intestinal normal, com evacuação presente ontem.';
+      _necessidadeCaloricaMinController.text =
+          defaultValues['necessidadeCaloricaMin']!;
+      _necessidadeCaloricaMaxController.text =
+          defaultValues['necessidadeCaloricaMax']!;
+      _necessidadeProteicaMinController.text =
+          defaultValues['necessidadeProteicaMin']!;
+      _necessidadeProteicaMaxController.text =
+          defaultValues['necessidadeProteicaMax']!;
+      _situationPatientController.text = defaultValues['situationPatient']!;
     });
   }
 
   _selectButton(String selected) {
+    final buttonStates = CalculationImcService.manageButtonSelection(
+      selected: selected,
+      currentTriagemState: isButtonSelectedTraigem,
+      currentRevisitaState: isButtonSelectedRevisita,
+    );
+
     setState(() {
-      if (selected == "TRAIGEM") {
-        isButtonSelectedTraigem = true;
-        isButtonSelectedRevisita = false;
-      } else if (selected == "REVISITA") {
-        isButtonSelectedTraigem = false;
-        isButtonSelectedRevisita = true;
-      }
+      isButtonSelectedTraigem = buttonStates['isButtonSelectedTraigem']!;
+      isButtonSelectedRevisita = buttonStates['isButtonSelectedRevisita']!;
     });
   }
 
