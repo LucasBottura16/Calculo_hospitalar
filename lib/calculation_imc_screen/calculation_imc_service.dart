@@ -11,6 +11,7 @@ class CalculationImcService {
 
   static List<String> listSuplements() {
     return [
+      'CANCELAR SELEÇÃO',
       'FRESUBIN CREME',
       'FRESUBIN JUCY',
       'FRESUBIN LP',
@@ -20,11 +21,20 @@ class CalculationImcService {
       'NUTREN CONTROL',
       'NUTREN SENIOR',
       'WHEY PROTEIN',
+      'NUTREN SENIOR DIABETIC PROTEIN',
+      'NUTREN DIET CHOCOLATE',
+      'NUTREN FIBER',
+      'FRESUBIN HP MACH',
+      'NOVASOURCE PROTEIN MORANGO',
+      'FRESUBIN PROTEIN ENERGY FIBER MORANGO',
+      'FRESUBIN PI BAUNILHA',
+      'FRESUBIN CREME FRUTAS VERMELHAS',
     ];
   }
 
   static List<String> listDiets() {
     return [
+      'CANCELAR SELEÇÃO',
       'GERAL',
       'BRANDA',
       'LEVE',
@@ -37,6 +47,7 @@ class CalculationImcService {
 
   static List<String> listDietsComplements() {
     return [
+      'CANCELAR SELEÇÃO',
       'PARA DIABETES',
       'HIPOSSÓDICA',
       'HIPOGORDUROSA',
@@ -49,6 +60,202 @@ class CalculationImcService {
       'LÍQ. ESPESSADOS GRAU 2',
       'LÍQ. ESPESSADOS GRAU 3',
     ];
+  }
+
+  static Map<String, dynamic> getDietNutritionalValues(String? dietType) {
+    if (dietType == null || dietType == 'CANCELAR SELEÇÃO') {
+      return {'calories': 0.0, 'protein': 0.0};
+    }
+
+    final Map<String, Map<String, double>> dietValues = {
+      'GERAL': {'calories': 2162.0, 'protein': 124.4},
+      'BRANDA': {'calories': 2158.0, 'protein': 121.1},
+      'LEVE': {'calories': 2035.0, 'protein': 124.6},
+      'PASTOSA': {'calories': 2176.0, 'protein': 138.5},
+      'PASTOSA BATIDA': {'calories': 1834.0, 'protein': 115.7},
+      'LÍQUIDA': {'calories': 381.5, 'protein': 8.0},
+      'ÁGUA, CHÁ E GELATINA': {'calories': 0.0, 'protein': 0.0},
+    };
+
+    return dietValues[dietType] ?? {'calories': 0.0, 'protein': 0.0};
+  }
+
+  static Map<String, dynamic> getDietComplementNutritionalValues(
+    String? complementType,
+  ) {
+    if (complementType == null || complementType == 'CANCELAR SELEÇÃO') {
+      return {'calories': 0.0, 'protein': 0.0};
+    }
+
+    final Map<String, Map<String, double>> complementValues = {
+      'PARA DIABETES': {'calories': 2040.8, 'protein': 118.3}, // Para DM
+      'HIPOSSÓDICA': {'calories': 2136.0, 'protein': 122.4}, // HAS
+      'HIPOGORDUROSA': {'calories': 2051.0, 'protein': 112.3},
+      'HIPOPROTEICA': {'calories': 1725.0, 'protein': 106.1},
+      'HIPOALERGÊNICA': {'calories': 2100.0, 'protein': 115.0},
+      'LAXATIVA': {'calories': 2048.6, 'protein': 116.4},
+      'SEM RESÍDUOS': {'calories': 2051.0, 'protein': 112.3},
+      'PARA NEFROPATA': {'calories': 1962.5, 'protein': 104.4},
+      'LÍQ. ESPESSADOS GRAU 1': {'calories': 381.5, 'protein': 8.0},
+      'LÍQ. ESPESSADOS GRAU 2': {'calories': 381.5, 'protein': 8.0},
+      'LÍQ. ESPESSADOS GRAU 3': {'calories': 381.5, 'protein': 8.0},
+    };
+
+    return complementValues[complementType] ??
+        {'calories': 0.0, 'protein': 0.0};
+  }
+
+  /// Retorna os valores nutricionais dos suplementos
+  /// Baseado nas tabelas oficiais de composição nutricional
+  static Map<String, dynamic> getSupplementNutritionalValues(
+    String? supplementType,
+  ) {
+    if (supplementType == null || supplementType == 'CANCELAR SELEÇÃO') {
+      return {'calories': 0.0, 'protein': 0.0, 'volume': 0.0};
+    }
+
+    // Valores baseados nas tabelas oficiais fornecidas
+    final Map<String, Map<String, double>> supplementValues = {
+      // Suplementos da lista original
+      'FRESUBIN CREME': {'calories': 300.0, 'protein': 18.0, 'volume': 200.0},
+      'FRESUBIN JUCY': {'calories': 300.0, 'protein': 8.0, 'volume': 200.0},
+      'FRESUBIN LP': {
+        'calories': 1500.0,
+        'protein': 75.0,
+        'volume': 1000.0,
+      }, // Volume total bolsa
+      'FRESUBIN PROT ENERGY': {
+        'calories': 300.0,
+        'protein': 20.0,
+        'volume': 200.0,
+      },
+      'IMPACT': {
+        'calories': 1500.0,
+        'protein': 84.0,
+        'volume': 1000.0,
+      }, // Volume total bolsa
+      'NOVASOURCE PROLINE': {
+        'calories': 300.0,
+        'protein': 20.0,
+        'volume': 200.0,
+      },
+      'NUTREN CONTROL': {'calories': 250.0, 'protein': 14.0, 'volume': 200.0},
+      'NUTREN SENIOR': {'calories': 200.0, 'protein': 10.0, 'volume': 200.0},
+      'WHEY PROTEIN': {
+        'calories': 120.0,
+        'protein': 25.0,
+        'volume': 30.0,
+      }, // Por scoop
+      // Novos suplementos baseados nas tabelas
+      'NUTREN SENIOR DIABETIC PROTEIN': {
+        'calories': 200.0,
+        'protein': 10.0,
+        'volume': 200.0,
+      },
+      'NUTREN DIET CHOCOLATE': {
+        'calories': 200.0,
+        'protein': 14.0,
+        'volume': 200.0,
+      },
+      'NUTREN FIBER': {'calories': 200.0, 'protein': 8.0, 'volume': 200.0},
+      'FRESUBIN HP MACH': {'calories': 300.0, 'protein': 18.0, 'volume': 200.0},
+      'NOVASOURCE PROTEIN MORANGO': {
+        'calories': 300.0,
+        'protein': 20.0,
+        'volume': 200.0,
+      },
+      'FRESUBIN PROTEIN ENERGY FIBER MORANGO': {
+        'calories': 300.0,
+        'protein': 20.0,
+        'volume': 200.0,
+      },
+      'FRESUBIN PI BAUNILHA': {
+        'calories': 250.0,
+        'protein': 5.8,
+        'volume': 125.0,
+      },
+      'FRESUBIN CREME FRUTAS VERMELHAS': {
+        'calories': 250.0,
+        'protein': 10.0,
+        'volume': 125.0,
+      },
+      // Suplemento para teste com exatamente 180 kcal
+      'SUPLEMENTO TESTE 180': {
+        'calories': 180.0,
+        'protein': 12.0,
+        'volume': 200.0,
+      },
+    };
+
+    return supplementValues[supplementType] ??
+        {'calories': 0.0, 'protein': 0.0, 'volume': 0.0};
+  }
+
+  static Map<String, double> calculateTotalNutritionalValues({
+    String? diet1,
+    String? diet2,
+    String? diet3,
+    String? diet4,
+  }) {
+    double totalCalories = 0.0;
+    double totalProtein = 0.0;
+
+    // A primeira dieta é a base (dieta principal)
+    if (diet1 != null && diet1.isNotEmpty) {
+      final baseValues = getDietNutritionalValues(diet1);
+      totalCalories = baseValues['calories'] as double;
+      totalProtein = baseValues['protein'] as double;
+    }
+
+    final complements = [
+      diet2,
+      diet3,
+      diet4,
+    ].where((diet) => diet != null && diet.isNotEmpty).cast<String>().toList();
+
+    for (String complement in complements) {
+      final complementValues = getDietComplementNutritionalValues(complement);
+
+      if (complementValues['calories'] as double > 0) {
+        totalCalories =
+            (totalCalories + (complementValues['calories'] as double)) / 2;
+        totalProtein =
+            (totalProtein + (complementValues['protein'] as double)) / 2;
+      }
+    }
+
+    return {'totalCalories': totalCalories, 'totalProtein': totalProtein};
+  }
+
+  /// Calcula os valores nutricionais considerando dietas e suplementos
+  static Map<String, double> calculateTotalNutritionalValuesWithSupplements({
+    String? diet1,
+    String? diet2,
+    String? diet3,
+    String? diet4,
+    String? supplement,
+  }) {
+    // Primeiro calcula os valores das dietas
+    final dietValues = calculateTotalNutritionalValues(
+      diet1: diet1,
+      diet2: diet2,
+      diet3: diet3,
+      diet4: diet4,
+    );
+
+    double totalCalories = dietValues['totalCalories'] ?? 0.0;
+    double totalProtein = dietValues['totalProtein'] ?? 0.0;
+
+    // Adiciona os valores do suplemento se selecionado
+    if (supplement != null &&
+        supplement.isNotEmpty &&
+        supplement != 'CANCELAR SELEÇÃO') {
+      final supplementValues = getSupplementNutritionalValues(supplement);
+      totalCalories += supplementValues['calories'] as double;
+      totalProtein += supplementValues['protein'] as double;
+    }
+
+    return {'totalCalories': totalCalories, 'totalProtein': totalProtein};
   }
 
   Map<String, String> calcularIMC({
@@ -131,7 +338,6 @@ class CalculationImcService {
     };
   }
 
-  /// Calcula as necessidades calóricas e proteicas baseadas no peso
   static Map<String, String> calculateNutritionalNeeds({
     required double peso,
     required double necessidadeCaloricaMin,
@@ -152,7 +358,6 @@ class CalculationImcService {
     };
   }
 
-  /// Valida se os campos básicos necessários para o cálculo estão preenchidos
   static bool areBasicFieldsFilled({
     required String idade,
     required String peso,
@@ -165,7 +370,6 @@ class CalculationImcService {
         resultadoIMC != null;
   }
 
-  /// Valida todos os campos obrigatórios antes de gerar o relatório
   static ValidationResult validateRequiredFields({
     required bool isButtonSelectedRevisita,
     required bool isButtonSelectedTraigem,
@@ -303,7 +507,6 @@ class CalculationImcService {
     return ValidationResult(isValid: true);
   }
 
-  /// Gerencia a seleção de botões (Triagem/Revisita)
   static Map<String, bool> manageButtonSelection({
     required String selected,
     required bool currentTriagemState,
@@ -327,7 +530,6 @@ class CalculationImcService {
     };
   }
 
-  /// Preparação dos dados para limpeza do formulário
   static FormClearData prepareFormClearData() {
     final defaultValues = getDefaultValues();
 
@@ -341,7 +543,6 @@ class CalculationImcService {
   }
 }
 
-/// Classe para resultado de validação
 class ValidationResult {
   final bool isValid;
   final String? errorMessage;
@@ -349,7 +550,6 @@ class ValidationResult {
   ValidationResult({required this.isValid, this.errorMessage});
 }
 
-/// Classe para dados de limpeza de formulário
 class FormClearData {
   final String situationPatientText;
   final String necessidadeCaloricaMin;

@@ -186,6 +186,25 @@ class _CalculationImcViewState extends State<CalculationImcView> {
     });
   }
 
+  void _updateDietNutritionalValues() {
+    final totalValues = CalculationImcService.calculateTotalNutritionalValuesWithSupplements(
+      diet1: _selectedDiets,
+      diet2: _selectedDietsComplements2,
+      diet3: _selectedDietsComplements3,
+      diet4: _selectedDietsComplements4,
+      supplement: _selectedSuplements,
+    );
+
+    // Para revisita, os campos são usados como porcentagem, não devem ser preenchidos automaticamente
+    if (!isButtonSelectedRevisita) {
+      _quantidadeDietaConsumidosController.text = totalValues['totalCalories']!
+          .toStringAsFixed(0);
+      _quantidadeSuplementsConsumidosController.text =
+          totalValues['totalProtein']!.toStringAsFixed(1);
+    }
+    // Para revisita, mantém os valores inseridos pelo usuário (porcentagens)
+  }
+
   void _mostrarDialogoLimparFormulario() {
     showDialog(
       context: context,
@@ -604,7 +623,8 @@ class _CalculationImcViewState extends State<CalculationImcView> {
                     items: CalculationImcService.listSuplements(),
                     onChanged: (String? newValue) {
                       setState(() {
-                        _selectedSuplements = newValue;
+                        _selectedSuplements = (newValue == 'CANCELAR SELEÇÃO') ? null : newValue;
+                        _updateDietNutritionalValues();
                       });
                     },
                     labelText: 'Suplementos',
@@ -636,7 +656,10 @@ class _CalculationImcViewState extends State<CalculationImcView> {
                     items: CalculationImcService.listDiets(),
                     onChanged: (String? newValue) {
                       setState(() {
-                        _selectedDiets = newValue;
+                        _selectedDiets = (newValue == 'CANCELAR SELEÇÃO')
+                            ? null
+                            : newValue;
+                        _updateDietNutritionalValues();
                       });
                     },
                     labelText: 'Dieta',
@@ -648,7 +671,9 @@ class _CalculationImcViewState extends State<CalculationImcView> {
                     items: CalculationImcService.listDietsComplements(),
                     onChanged: (String? newValue) {
                       setState(() {
-                        _selectedDietsComplements2 = newValue;
+                        _selectedDietsComplements2 =
+                            (newValue == 'CANCELAR SELEÇÃO') ? null : newValue;
+                        _updateDietNutritionalValues();
                       });
                     },
                   ),
@@ -659,7 +684,9 @@ class _CalculationImcViewState extends State<CalculationImcView> {
                     items: CalculationImcService.listDietsComplements(),
                     onChanged: (String? newValue) {
                       setState(() {
-                        _selectedDietsComplements3 = newValue;
+                        _selectedDietsComplements3 =
+                            (newValue == 'CANCELAR SELEÇÃO') ? null : newValue;
+                        _updateDietNutritionalValues();
                       });
                     },
                   ),
@@ -670,7 +697,9 @@ class _CalculationImcViewState extends State<CalculationImcView> {
                     items: CalculationImcService.listDietsComplements(),
                     onChanged: (String? newValue) {
                       setState(() {
-                        _selectedDietsComplements4 = newValue;
+                        _selectedDietsComplements4 =
+                            (newValue == 'CANCELAR SELEÇÃO') ? null : newValue;
+                        _updateDietNutritionalValues();
                       });
                     },
                   ),
@@ -989,6 +1018,7 @@ class _CalculationImcViewState extends State<CalculationImcView> {
                 quantidadeDietaConsumidos:
                     _quantidadeDietaConsumidosController.text,
                 imcIdeal: _imcIdealController.text,
+                isRevisita: isButtonSelectedRevisita,
               );
 
               Navigator.pushNamed(

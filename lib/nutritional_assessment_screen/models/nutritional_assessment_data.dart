@@ -42,6 +42,13 @@ class NutritionalAssessmentData {
   final String? quantidadeSuplements;
   final String? quantidadeSuplementsConsumidos;
   final String? quantidadeDietaConsumidos;
+  
+  // Tipo de avaliação
+  final bool? isRevisita;
+  
+  // Porcentagens de consumo (para revisita)
+  final String? porcentagemDieta;
+  final String? porcentagemSuplemento;
 
   const NutritionalAssessmentData({
     this.idade,
@@ -71,6 +78,9 @@ class NutritionalAssessmentData {
     this.quantidadeSuplements,
     this.quantidadeSuplementsConsumidos,
     this.quantidadeDietaConsumidos,
+    this.isRevisita,
+    this.porcentagemDieta,
+    this.porcentagemSuplemento,
     this.imcIdeal,
   });
 
@@ -103,6 +113,9 @@ class NutritionalAssessmentData {
     String? quantidadeSuplementsConsumidos,
     String? quantidadeDietaConsumidos,
     String? imcIdeal,
+    bool? isRevisita,
+    String? porcentagemDieta,
+    String? porcentagemSuplemento,
   }) {
     return NutritionalAssessmentData(
       idade: idade ?? this.idade,
@@ -142,6 +155,9 @@ class NutritionalAssessmentData {
       quantidadeDietaConsumidos:
           quantidadeDietaConsumidos ?? this.quantidadeDietaConsumidos,
       imcIdeal: imcIdeal ?? this.imcIdeal,
+      isRevisita: isRevisita ?? this.isRevisita,
+      porcentagemDieta: porcentagemDieta ?? this.porcentagemDieta,
+      porcentagemSuplemento: porcentagemSuplemento ?? this.porcentagemSuplemento,
     );
   }
 }
