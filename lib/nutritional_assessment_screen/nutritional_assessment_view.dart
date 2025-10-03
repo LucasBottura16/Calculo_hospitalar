@@ -55,16 +55,17 @@ class _NutritionalAssessmentViewState extends State<NutritionalAssessmentView> {
                     child: CustomButton(
                       onPressed: () async {
                         final plainTextReport = sampleReport;
+                        final messenger = ScaffoldMessenger.of(context);
                         await Clipboard.setData(
                           ClipboardData(text: plainTextReport),
                         );
                         if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
+                          messenger.showSnackBar(
                             const SnackBar(
                               content: Text(
                                 'Relatório copiado para a área de transferência!',
                               ),
-                              backgroundColor: Colors.green,
+                              backgroundColor: MyColors.myPrimary,
                             ),
                           );
                         }

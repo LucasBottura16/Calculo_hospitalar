@@ -1,23 +1,20 @@
 import 'package:calculo_imc/calculation_imc_screen/calculation_imc_view.dart';
 import 'package:calculo_imc/nutritional_assessment_screen/nutritional_assessment_view.dart';
+import 'package:calculo_imc/nutritional_assessment_screen/models/nutritional_assessment_data.dart';
 import 'package:flutter/material.dart';
 
 class RouteGenerator {
   static const String calculationImc = "/calculationImc";
   static const String nutritionalAssessment = "/nutritionalAssessment";
 
-  static var args;
-
   static Route<dynamic>? generateRoute(RouteSettings settings) {
-    args = settings.arguments;
-
     switch (settings.name) {
       case calculationImc:
         return MaterialPageRoute(builder: (_) => const CalculationImcView());
       case nutritionalAssessment:
         return MaterialPageRoute(
           builder: (_) => NutritionalAssessmentView(
-            assessmentData: args,
+            assessmentData: settings.arguments as NutritionalAssessmentData?,
           ),
         );
       default:
